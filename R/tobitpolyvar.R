@@ -87,14 +87,14 @@ llLogisticReg <- function(y, xTbeta)
 }
 
 # log-likelihood of the hybrid tobit-logit regression model
-llHybridPolyVar <- function(y.tobit, y.discrete, sigma,
+llHyregPolyVar <- function(y.tobit, y.discrete, sigma,
                             xTbeta.tobit, xTbeta.discrete, left)
 {
   llTobit(y = y.tobit, xTbeta = xTbeta.tobit, sigma = sigma, left = left) +
     llLogisticReg(y = y.discrete, xTbeta = xTbeta.discrete)
 }
 
-objective.hybridpolyvar <- function(params, y.tobit, y.discrete,
+objective.hyregpolyvar <- function(params, y.tobit, y.discrete,
                                     X.tobit, X.discrete, left)
 {
   beta.tobit <- c(1, params[1:ncol(X.tobit)])
@@ -112,7 +112,7 @@ objective.hybridpolyvar <- function(params, y.tobit, y.discrete,
 
   sigma <- exp(rowSums(exp.terms))
 
-  return(llHybridPolyVar(y.tobit = y.tobit, y.discrete = y.discrete, sigma = sigma,
+  return(llHyregPolyVar(y.tobit = y.tobit, y.discrete = y.discrete, sigma = sigma,
                          left = left, xTbeta.tobit = xTbeta.tobit,
                          xTbeta.discrete = xTbeta.discrete))
 }
@@ -139,7 +139,7 @@ objective.hybridpolyvar <- function(params, y.tobit, y.discrete,
 #' \item{gamma}{the polynomial coefficients}
 #' \item{theta}{the scalar multiplicative factor between betas}
 #' @export
-hybridpolyvar <- function(formula.tobit, formula.discrete, data.tobit,
+hyregpolyvar <- function(formula.tobit, formula.discrete, data.tobit,
                          data.discrete, left = -1, start.beta = NULL,
                          start.gamma = NULL, start.theta = NULL)
 {
@@ -151,7 +151,7 @@ hybridpolyvar <- function(formula.tobit, formula.discrete, data.tobit,
 
   start.params <- c(start.beta, "gamma" = start.gamma, "theta" = start.theta)
 
-  J <- cmpfun(function(params){-objective.hybridpolyvar(params = params, y.tobit = y.tobit,
+  J <- cmpfun(function(params){-objective.hyregpolyvar(params = params, y.tobit = y.tobit,
                                                         y.discrete = y.discrete,
                                                         X.tobit = X.tobit, X.discrete = X.discrete,
                                                         left = left)})
@@ -189,7 +189,7 @@ hybridpolyvar <- function(formula.tobit, formula.discrete, data.tobit,
 # start.gamma <- sim.spec$variance$tto$sigma$gamma
 # start.theta <- mean(beta.dce.true[-1] / beta.tto.true[-1])
 #
-# hybrid.pv.ests <- hybridpolyvar(formula.tobit = formula.tobit, formula.discrete = formula.discrete,
+# hybrid.pv.ests <- hyregpolyvar(formula.tobit = formula.tobit, formula.discrete = formula.discrete,
 #                                 data.tobit = data.tobit, data.discrete = data.discrete,
 #                                 left = -1, start.beta = start.beta, start.gamma = start.gamma,
 #                                 start.theta = start.theta)
