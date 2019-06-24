@@ -4,8 +4,7 @@
 \alias{tobitpolyvar}
 \title{Perform tobit regression assuming polynomial-based heteroscedasticity}
 \usage{
-tobitpolyvar(formula, data, left = -1, start.beta = NULL,
-  start.gamma = NULL)
+tobitpolyvar(formula, data, left = -1, start.beta = NULL, start.gamma)
 }
 \arguments{
 \item{formula}{a formula specifying the relationship between the tobit response and regressors}

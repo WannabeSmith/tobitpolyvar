@@ -40,6 +40,7 @@ objective.tobitpolyvar <- function(params, y, X, left)
 #'
 #' @importFrom stats model.matrix optim dnorm pnorm
 #' @importFrom compiler cmpfun
+#' @importFrom survival survreg Surv
 #' @param formula a formula specifying the relationship between the tobit response and regressors
 #' @param data a data.frame containing the variables specified in formula
 #' @param start.beta an initial guess for beta
@@ -49,12 +50,19 @@ objective.tobitpolyvar <- function(params, y, X, left)
 #' \item{beta}{the regression coefficients}
 #' \item{gamma}{the polynomial coefficients}
 #' @export
-tobitpolyvar <- function(formula, data, left = -1, start.beta = NULL, start.gamma = NULL)
+tobitpolyvar <- function(formula, data, left = -1, start.beta = NULL, start.gamma)
 {
   X <- model.matrix(formula, data = data)
   y <- data[, all.vars(formula)[1]]
 
-  start.params <- c(start.beta, start.gamma)
+  if(is.null(start.beta))
+  {
+    model.start <- survreg(Surv(y.tobit, y.tobit > left, type = "left") ~
+                             X.tobit[, -1], dist = "gaussian")
+    start.beta <- model.start$coefficients
+  }
+
+  start.params <- c(start.beta, "gamma" = start.gamma)
 
   J <- cmpfun(function(params){-objective.tobitpolyvar(params = params, y = y, X = X, left = left)})
 
@@ -126,6 +134,7 @@ objective.hyregpolyvar <- function(params, y.tobit, y.discrete,
 #'
 #' @importFrom stats model.matrix optim dnorm pnorm
 #' @importFrom compiler cmpfun
+#' @importFrom survival survreg Surv
 #' @param formula.tobit a regression formula describing the relationship between the tobit response and the covariates
 #' @param formula.discrete a regression formula describing the relationship between the bernoulli response and the covariates
 #' @param data.tobit the data.frame containing the tobit responses and covariates
@@ -141,13 +150,25 @@ objective.hyregpolyvar <- function(params, y.tobit, y.discrete,
 #' @export
 hyregpolyvar <- function(formula.tobit, formula.discrete, data.tobit,
                          data.discrete, left = -1, start.beta = NULL,
-                         start.gamma = NULL, start.theta = NULL)
+                         start.gamma, start.theta = NULL)
 {
   X.tobit <- model.matrix(formula.tobit, data = data.tobit)
   y.tobit <- data.tobit[, all.vars(formula.tobit)[1]]
 
   X.discrete <- model.matrix(formula.discrete, data = data.discrete)
   y.discrete <- data.discrete[, all.vars(formula.discrete)[1]]
+
+  if(is.null(start.beta))
+  {
+    model.start <- survreg(Surv(y.tobit, y.tobit > left, type = "left") ~
+                             X.tobit[, -1], dist = "gaussian")
+    start.beta <- model.start$coefficients
+  }
+
+  if(is.null(start.theta))
+  {
+    start.theta <- 1
+  }
 
   start.params <- c(start.beta, "gamma" = start.gamma, "theta" = start.theta)
 

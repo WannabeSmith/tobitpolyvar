@@ -5,8 +5,7 @@
 \title{Perform hybrid tobit-logit regression assuming polynomial-based heteroscedasticity}
 \usage{
 hyregpolyvar(formula.tobit, formula.discrete, data.tobit, data.discrete,
-  left = -1, start.beta = NULL, start.gamma = NULL,
-  start.theta = NULL)
+  left = -1, start.beta = NULL, start.gamma, start.theta = NULL)
 }
 \arguments{
 \item{formula.tobit}{a regression formula describing the relationship between the tobit response and the covariates}
