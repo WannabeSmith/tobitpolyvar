@@ -50,17 +50,10 @@ objective.tobitpolyvar <- function(params, y, X, left)
 #' \item{beta}{the regression coefficients}
 #' \item{gamma}{the polynomial coefficients}
 #' @export
-tobitpolyvar <- function(formula, data, left = -1, start.beta = NULL, start.gamma)
+tobitpolyvar <- function(formula, data, left = -1, start.beta, start.gamma)
 {
   X <- model.matrix(formula, data = data)
   y <- data[, all.vars(formula)[1]]
-
-  if(is.null(start.beta))
-  {
-    model.start <- survreg(Surv(y.tobit, y.tobit > left, type = "left") ~
-                             X.tobit[, -1], dist = "gaussian")
-    start.beta <- model.start$coefficients
-  }
 
   start.params <- c(start.beta, "gamma" = start.gamma)
 
@@ -149,26 +142,14 @@ objective.hyregpolyvar <- function(params, y.tobit, y.discrete,
 #' \item{theta}{the scalar multiplicative factor between betas}
 #' @export
 hyregpolyvar <- function(formula.tobit, formula.discrete, data.tobit,
-                         data.discrete, left = -1, start.beta = NULL,
-                         start.gamma, start.theta = NULL)
+                         data.discrete, left = -1, start.beta,
+                         start.gamma, start.theta)
 {
   X.tobit <- model.matrix(formula.tobit, data = data.tobit)
   y.tobit <- data.tobit[, all.vars(formula.tobit)[1]]
 
   X.discrete <- model.matrix(formula.discrete, data = data.discrete)
   y.discrete <- data.discrete[, all.vars(formula.discrete)[1]]
-
-  if(is.null(start.beta))
-  {
-    model.start <- survreg(Surv(y.tobit, y.tobit > left, type = "left") ~
-                             X.tobit[, -1], dist = "gaussian")
-    start.beta <- model.start$coefficients
-  }
-
-  if(is.null(start.theta))
-  {
-    start.theta <- 1
-  }
 
   start.params <- c(start.beta, "gamma" = start.gamma, "theta" = start.theta)
 
