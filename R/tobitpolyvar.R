@@ -60,7 +60,7 @@ tobitpolyvar <- function(formula, data, left = -1, start.beta, start.gamma)
 
   J <- cmpfun(function(params){-objective.tobitpolyvar(params = params, y = y, X = X, left = left)})
 
-  optimum <- optim(par = start.params, fn = J, method = "L")
+  optimum <- optim(par = start.params, fn = J, method = "Nelder-Mead")
 
   beta <- c(1, optimum$par[1:length(start.beta)])
   gamma <- optimum$par[(length(start.beta) + 1):length(optimum$par)]
@@ -160,7 +160,7 @@ hyregpolyvar <- function(formula.tobit, formula.discrete, data.tobit,
                                                         X.tobit = X.tobit, X.discrete = X.discrete,
                                                         left = left)})
 
-  optimum <- optim(par = start.params, fn = J, method = "L")
+  optimum <- optim(par = start.params, fn = J, method = "Nelder-Mead")
 
   beta <- c(1, optimum$par[1:length(start.beta)])
   gamma <- optimum$par[(length(start.beta) + 1):(length(optimum$par) - 1)]
