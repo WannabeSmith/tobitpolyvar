@@ -21,10 +21,11 @@ objective.tobitpolyvar <- function(params, y, X, left)
 {
   beta <- c(1, params[1:ncol(X)])
   xTbeta <- cbind(1, X) %*% beta
+  disutility <- 1-xTbeta
   gamma <- params[(ncol(X)+1):length(params)]
 
   exp.terms <- sapply(1:length(gamma), function(i){
-    gamma[i] * xTbeta^(i - 1)
+    gamma[i] * disutility^(i - 1)
   })
 
   sigma <- exp(rowSums(exp.terms))
@@ -105,10 +106,11 @@ objective.hyregpolyvar <- function(params, y.tobit, y.discrete,
 
 
   xTbeta.tobit <- cbind(1, X.tobit) %*% beta.tobit
+  disutility.tobit <- 1 - xTbeta.tobit
   xTbeta.discrete <- cbind(1, X.discrete) %*% (beta.discrete)
 
   exp.terms <- sapply(1:length(gamma), function(i){
-    gamma[i] * xTbeta.tobit^(i - 1)
+    gamma[i] * disutility.tobit^(i - 1)
   })
 
   sigma <- exp(rowSums(exp.terms))
