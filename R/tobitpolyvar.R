@@ -21,14 +21,9 @@ objective.tobitpolyvar <- function(params, y, X, left)
 {
   beta <- c(1, params[1:ncol(X)])
   xTbeta <- cbind(1, X) %*% beta
-  disutility <- 1-xTbeta
   gamma <- params[(ncol(X)+1):length(params)]
 
-  exp.terms <- sapply(1:length(gamma), function(i){
-    gamma[i] * disutility^(i - 1)
-  })
-
-  sigma <- exp(rowSums(exp.terms))
+  sigma <- exp(X %*% gamma)
 
   return(llTobit(y = y, xTbeta = xTbeta, sigma = sigma, left = left))
 }
@@ -60,7 +55,7 @@ tobitpolyvar <- function(formula, data, left = -1, start.beta, start.gamma)
 
   J <- cmpfun(function(params){-objective.tobitpolyvar(params = params, y = y, X = X, left = left)})
 
-  optimum <- optim(par = start.params, fn = J, method = "Nelder-Mead")
+  optimum <- optim(par = start.params, fn = J, method = "BFGS")
 
   beta <- c(1, optimum$par[1:length(start.beta)])
   gamma <- optimum$par[(length(start.beta) + 1):length(optimum$par)]
@@ -106,14 +101,9 @@ objective.hyregpolyvar <- function(params, y.tobit, y.discrete,
 
 
   xTbeta.tobit <- cbind(1, X.tobit) %*% beta.tobit
-  disutility.tobit <- 1 - xTbeta.tobit
   xTbeta.discrete <- cbind(1, X.discrete) %*% (beta.discrete)
 
-  exp.terms <- sapply(1:length(gamma), function(i){
-    gamma[i] * disutility.tobit^(i - 1)
-  })
-
-  sigma <- exp(rowSums(exp.terms))
+  sigma <- exp(X.tobit %*% gamma)
 
   return(llHyregPolyVar(y.tobit = y.tobit, y.discrete = y.discrete, sigma = sigma,
                          left = left, xTbeta.tobit = xTbeta.tobit,
@@ -160,7 +150,7 @@ hyregpolyvar <- function(formula.tobit, formula.discrete, data.tobit,
                                                         X.tobit = X.tobit, X.discrete = X.discrete,
                                                         left = left)})
 
-  optimum <- optim(par = start.params, fn = J, method = "Nelder-Mead")
+  optimum <- optim(par = start.params, fn = J, method = "BFGS")
 
   beta <- c(1, optimum$par[1:length(start.beta)])
   gamma <- optimum$par[(length(start.beta) + 1):(length(optimum$par) - 1)]
